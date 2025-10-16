@@ -10,6 +10,7 @@ import {
 import { Shield, Bot, BarChart, Zap, ArrowRight } from 'lucide-react';
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
+import NodeNetwork from '@/components/node-network';
 
 export default function HomePage() {
   return (
@@ -17,10 +18,10 @@ export default function HomePage() {
       <Header />
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="w-full py-20 md:py-32 lg:py-40 bg-gradient-to-br from-card to-background">
+        <section className="relative w-full py-20 md:py-32 lg:py-40 bg-gradient-to-br from-card to-background overflow-hidden">
           <div className="container mx-auto px-4 md:px-6">
             <div className="grid gap-6 lg:grid-cols-2 lg:gap-12">
-              <div className="flex flex-col justify-center space-y-4">
+              <div className="flex flex-col justify-center space-y-4 z-10">
                 <div className="space-y-2">
                   <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/70">
                     AI-Powered Cybersecurity for the Modern MSP
@@ -48,12 +49,8 @@ export default function HomePage() {
                   </Link>
                 </div>
               </div>
-              <div className="relative flex items-center justify-center">
-                  <div className="absolute w-72 h-72 bg-primary/20 rounded-full blur-3xl animate-pulse"></div>
-                  <Shield className="w-64 h-64 text-primary opacity-20" />
-                  <div className="absolute w-full h-full flex items-center justify-center">
-                    <Bot className="w-32 h-32 text-primary/80 animate-pulse" style={{animationDelay: '0.5s'}}/>
-                  </div>
+              <div className="relative flex items-center justify-center z-0">
+                <NodeNetwork />
               </div>
             </div>
           </div>

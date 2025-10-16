@@ -6,13 +6,13 @@ export default function Footer() {
       <div className="container mx-auto flex items-center justify-between text-sm text-muted-foreground">
         <p>&copy; {new Date().getFullYear()} MSP Guardian Security</p>
         <div className="flex items-center gap-4">
-          <Link href="#" className="hover:text-primary">
+          <Link href="#" className="hover:text-primary underline-expand">
             Privacy Policy
           </Link>
-          <Link href="#" className="hover:text-primary">
+          <Link href="#" className="hover:text-primary underline-expand">
             Terms of Service
           </Link>
-          <Link href="#" className="hover:text-primary">
+          <Link href="#" className="hover:text-primary underline-expand">
             Contact Support
           </Link>
         </div>

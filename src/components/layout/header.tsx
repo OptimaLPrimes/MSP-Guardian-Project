@@ -21,7 +21,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 
 export default function Header() {
   return (
-    <header className="sticky top-0 flex h-16 items-center gap-4 border-b border-border/40 bg-background/95 px-4 backdrop-blur-sm md:px-6 z-50 shadow-md shadow-black/5">
+    <header className="sticky top-0 flex h-16 items-center gap-4 border-b border-border/40 bg-background/80 px-4 backdrop-blur-sm md:px-6 z-50 shadow-lg shadow-black/10">
       <div className="flex items-center gap-2">
         <Link
           href="/"
@@ -38,9 +38,9 @@ export default function Header() {
       <div className="flex w-full items-center gap-4 md:ml-auto md:w-auto">
         <div className="ml-auto flex-1 sm:flex-initial">
            <div className="flex items-center gap-2 text-sm">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+            <span className="relative flex h-3 w-3">
+              <span className="animate-ping-slow absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
             </span>
             <span className="hidden sm:inline text-muted-foreground">System Status:</span><span className="hidden sm:inline font-semibold text-green-400">All Systems Operational</span>
           </div>

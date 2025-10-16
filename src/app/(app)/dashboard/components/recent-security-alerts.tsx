@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Table,
   TableBody,
@@ -52,8 +52,33 @@ const severityConfig: {
   },
 };
 
-export function RecentSecurityAlerts({ data }: { data: Threat[] }) {
+export function RecentSecurityAlerts({ data: initialData }: { data: Threat[] }) {
   const { toast } = useToast();
+  const [data, setData] = useState(initialData);
+  const [newAlertId, setNewAlertId] = useState<number | null>(null);
+
+  useEffect(() => {
+    // Simulate a new alert coming in
+    const interval = setInterval(() => {
+        const newAlert: Threat = {
+            id: Date.now(),
+            client: "Dynamic Systems",
+            type: "Anomalous Login",
+            severity: "medium",
+            source: "CloudTrail",
+            status: "active",
+            time: "1 sec ago",
+            description: "A new suspicious login was detected from an unrecognized device.",
+            details: { ip: "192.168.1.100", device: "Unknown" }
+        };
+        setData(prevData => [newAlert, ...prevData.slice(0, 4)]);
+        setNewAlertId(newAlert.id);
+        setTimeout(() => setNewAlertId(null), 2000); // Flash duration
+    }, 10000); // Add a new alert every 10 seconds
+
+    return () => clearInterval(interval);
+  }, []);
+
   const [sortDescriptor, setSortDescriptor] = React.useState<{
     column: keyof Threat;
     direction: 'asc' | 'desc';
@@ -93,17 +118,21 @@ export function RecentSecurityAlerts({ data }: { data: Threat[] }) {
       if (sortDescriptor.column === 'time') {
         const now = new Date();
         const parseTime = (timeStr: string) => {
-          const [value, unit] = timeStr.split(' ');
-          const numValue = parseInt(value);
+          const parts = timeStr.split(' ');
+          const value = parseInt(parts[0]) || 0;
+          const unit = parts[1] || '';
+          if (unit.startsWith('sec')) {
+              return new Date(now.getTime() - value * 1000);
+          }
           if (unit.startsWith('min')) {
-            return new Date(now.getTime() - numValue * 60 * 1000);
+            return new Date(now.getTime() - value * 60 * 1000);
           }
           if (unit.startsWith('hour')) {
-            return new Date(now.getTime() - numValue * 60 * 60 * 1000);
+            return new Date(now.getTime() - value * 60 * 60 * 1000);
           }
           return now;
         };
-        cmp = parseTime(a.time).getTime() - parseTime(b.time).getTime();
+        cmp = parseTime(b.time).getTime() - parseTime(a.time).getTime();
       }
 
       return sortDescriptor.direction === 'asc' ? cmp : -cmp;
@@ -158,19 +187,26 @@ export function RecentSecurityAlerts({ data }: { data: Threat[] }) {
         <TableBody>
           {sortedData.map((alert) => {
             const config = severityConfig[alert.severity];
+            const isNew = alert.id === newAlertId;
             return (
               <TableRow
                 key={alert.id}
-                className="group cursor-pointer hover:bg-muted/50"
+                className={cn("group cursor-pointer transition-all duration-200 ease-out hover:bg-muted/50 hover:scale-[1.01] hover:shadow-lg", { 'new-alert-flash': isNew })}
               >
                 <TableCell>
                   <Badge
                     variant="outline"
                     className={cn(
-                      'capitalize font-semibold flex items-center gap-2',
+                      'capitalize font-semibold flex items-center gap-2 relative',
                       config.badgeClass
                     )}
                   >
+                    { (alert.severity === 'critical' || alert.severity === 'high') && 
+                        <span className="absolute -top-0.5 -right-0.5 flex h-2 w-2">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-current opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-current"></span>
+                        </span>
+                    }
                     <config.icon className="h-4 w-4" />
                     {alert.severity}
                   </Badge>

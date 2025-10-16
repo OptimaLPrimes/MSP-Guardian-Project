@@ -67,3 +67,39 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  .underline-expand {
+    position: relative;
+    text-decoration: none;
+  }
+
+  .underline-expand::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 50%;
+    width: 0;
+    height: 1px;
+    background-color: hsl(var(--primary));
+    transition: all 0.3s ease-out;
+    transform: translateX(-50%);
+  }
+
+  .underline-expand:hover::after {
+    width: 100%;
+  }
+
+  .new-alert-flash {
+    animation: new-alert-flash-anim 2s ease-out;
+  }
+  
+  @keyframes new-alert-flash-anim {
+    0% {
+      background-color: hsl(var(--primary) / 0.2);
+    }
+    100% {
+      background-color: transparent;
+    }
+  }
+}

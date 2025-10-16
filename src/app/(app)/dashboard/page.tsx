@@ -48,24 +48,24 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent className="flex items-center justify-center">
             <div className="relative flex h-32 w-32 items-center justify-center">
-              <svg className="h-full w-full" viewBox="0 0 36 36">
+              <svg className="h-full w-full -rotate-90" viewBox="0 0 36 36">
                 <path
-                  className="stroke-muted"
+                  className="stroke-muted/30"
                   d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                   fill="none"
                   strokeWidth="3"
                 />
                 <path
-                  className="stroke-primary"
+                  className="stroke-primary transition-all duration-1000 ease-out"
                   strokeDasharray="94, 100"
                   d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                   fill="none"
                   strokeWidth="3"
                   strokeLinecap="round"
-                  transform="rotate(90 18 18)"
+                  style={{strokeDashoffset: (100 - 94)}}
                 />
               </svg>
-              <span className="absolute text-4xl font-bold text-primary">
+              <span className="absolute text-4xl font-bold text-primary animate-fade-in">
                 94
               </span>
             </div>

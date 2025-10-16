@@ -35,10 +35,6 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export default function SystemHealthChart() {
-  const totalSystems = React.useMemo(() => {
-    return chartData.reduce((acc, curr) => acc + curr.value, 0);
-  }, []);
-
   return (
     <Card className="flex h-full flex-col">
       <CardHeader>
@@ -51,8 +47,8 @@ export default function SystemHealthChart() {
         >
           <PieChart>
             <Tooltip
-              cursor={false}
-              content={<ChartTooltipContent hideLabel />}
+              cursor={true}
+              content={<ChartTooltipContent hideLabel indicator="dot" />}
             />
             <Pie
               data={chartData}
@@ -60,12 +56,14 @@ export default function SystemHealthChart() {
               nameKey="name"
               innerRadius={60}
               strokeWidth={5}
+              animationDuration={800}
+              animationBegin={0}
             >
               {chartData.map((entry) => (
                 <Cell
                   key={`cell-${entry.name}`}
                   fill={entry.fill}
-                  className="outline-none"
+                  className="outline-none transition-opacity hover:opacity-80"
                 />
               ))}
             </Pie>

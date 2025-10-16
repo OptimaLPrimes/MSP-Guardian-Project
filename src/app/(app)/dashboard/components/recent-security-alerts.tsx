@@ -17,8 +17,11 @@ import {
   ShieldAlert,
   ShieldCheck,
   FileWarning,
+  Ticket,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { triageAndCreateTicket } from '@/ai/flows/superops-integration';
+import { useToast } from '@/hooks/use-toast';
 
 const severityConfig: {
   [key: string]: {
@@ -50,10 +53,32 @@ const severityConfig: {
 };
 
 export function RecentSecurityAlerts({ data }: { data: Threat[] }) {
+  const { toast } = useToast();
   const [sortDescriptor, setSortDescriptor] = React.useState<{
     column: keyof Threat;
     direction: 'asc' | 'desc';
   }>({ column: 'time', direction: 'desc' });
+  const [isProcessing, setIsProcessing] = React.useState<number | null>(null);
+
+  const handleCreateTicket = async (alert: Threat) => {
+    setIsProcessing(alert.id);
+    try {
+      const result = await triageAndCreateTicket({ alert });
+      toast({
+        title: 'SuperOps Ticket Created!',
+        description: `Ticket ${result.ticketId} created for "${result.summary}". Category: ${result.category}, Priority: ${result.priority}.`,
+      });
+    } catch (error) {
+      console.error('Failed to create ticket:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Error Creating Ticket',
+        description: 'Could not create a SuperOps ticket for this alert.',
+      });
+    } finally {
+      setIsProcessing(null);
+    }
+  };
 
   const sortedData = React.useMemo(() => {
     return [...data].sort((a, b) => {
@@ -96,7 +121,6 @@ export function RecentSecurityAlerts({ data }: { data: Threat[] }) {
     }
   };
 
-
   return (
     <div className="rounded-xl border border-border bg-card/50">
       <Table>
@@ -108,13 +132,13 @@ export function RecentSecurityAlerts({ data }: { data: Threat[] }) {
                 <ArrowUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
               </Button>
             </TableHead>
-            <TableHead className="w-1/4">
+            <TableHead>
               <Button variant="ghost" onClick={() => handleSort('client')}>
                 Client Name{' '}
                 <ArrowUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
               </Button>
             </TableHead>
-            <TableHead className="w-1/2">
+            <TableHead>
               <Button variant="ghost" onClick={() => handleSort('type')}>
                 Threat Type{' '}
                 <ArrowUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -127,7 +151,7 @@ export function RecentSecurityAlerts({ data }: { data: Threat[] }) {
               </Button>
             </TableHead>
             <TableHead>
-              <span className="sr-only">Details</span>
+              <span className="sr-only">Actions</span>
             </TableHead>
           </TableRow>
         </TableHeader>
@@ -137,7 +161,7 @@ export function RecentSecurityAlerts({ data }: { data: Threat[] }) {
             return (
               <TableRow
                 key={alert.id}
-                className="cursor-pointer hover:bg-muted/50"
+                className="group cursor-pointer hover:bg-muted/50"
               >
                 <TableCell>
                   <Badge
@@ -156,8 +180,21 @@ export function RecentSecurityAlerts({ data }: { data: Threat[] }) {
                 <TableCell className="text-right text-muted-foreground">
                   {alert.time}
                 </TableCell>
-                <TableCell>
-                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                <TableCell className="text-right">
+                  <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleCreateTicket(alert)}
+                      disabled={isProcessing === alert.id}
+                    >
+                      <Ticket className="mr-2 h-4 w-4" />
+                      {isProcessing === alert.id
+                        ? 'Processing...'
+                        : 'AI Triage & Ticket'}
+                    </Button>
+                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                  </div>
                 </TableCell>
               </TableRow>
             );

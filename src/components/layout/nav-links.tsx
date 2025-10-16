@@ -4,6 +4,7 @@ import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 
 const links = [
+  { href: '/', label: 'Home' },
   { href: '/dashboard', label: 'Overview' },
   { href: '/threats', label: 'Threats' },
   { href: '/clients', label: 'Clients' },
@@ -13,6 +14,8 @@ const links = [
 
 export default function NavLinks({ isMobile = false }: { isMobile?: boolean }) {
   const pathname = usePathname();
+
+  const isHome = (href: string) => href === '/' && pathname !== '/';
 
   return (
     <nav className={cn(
@@ -25,7 +28,7 @@ export default function NavLinks({ isMobile = false }: { isMobile?: boolean }) {
           href={link.href}
           className={cn(
             'transition-colors hover:text-primary',
-            pathname.startsWith(link.href) ? 'text-primary' : 'text-muted-foreground',
+            (pathname === link.href) ? 'text-primary' : 'text-muted-foreground',
             isMobile && 'text-lg'
           )}
         >

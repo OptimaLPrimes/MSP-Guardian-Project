@@ -1,3 +1,6 @@
+
+'use client';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import {
@@ -13,6 +16,15 @@ import Footer from '@/components/layout/footer';
 import NodeNetwork from '@/components/node-network';
 
 export default function HomePage() {
+  const [isCritical, setIsCritical] = useState(false);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIsCritical(prev => !prev);
+    }, 10000); // Toggle critical state every 10 seconds for demonstration
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <div className="flex min-h-screen w-full flex-col">
       <Header />
@@ -50,7 +62,7 @@ export default function HomePage() {
                 </div>
               </div>
               <div className="relative flex items-center justify-center z-0">
-                <NodeNetwork />
+                <NodeNetwork isCritical={isCritical} />
               </div>
             </div>
           </div>

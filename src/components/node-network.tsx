@@ -1,3 +1,4 @@
+
 'use client';
 import { useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
@@ -19,8 +20,16 @@ interface Connection {
     pulseStartTime: number;
 }
 
-const NodeNetwork = () => {
+interface ScanWave {
+    startTime: number;
+    duration: number;
+    startX: number;
+}
+
+const NodeNetwork = ({ isCritical = false }: { isCritical?: boolean }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
+    const scanWaveRef = useRef<ScanWave | null>(null);
+
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -44,6 +53,15 @@ const NodeNetwork = () => {
                 canvas.height = container.offsetHeight;
             }
         };
+        
+        if (!scanWaveRef.current) {
+            scanWaveRef.current = {
+                startTime: Date.now(),
+                duration: 20000, // 20 seconds
+                startX: -canvas.width * 0.1,
+            };
+        }
+
 
         const init = () => {
             resizeCanvas();
@@ -81,6 +99,35 @@ const NodeNetwork = () => {
             if (!ctx) return;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+             // Draw system scan wave
+             if (scanWaveRef.current) {
+                const wave = scanWaveRef.current;
+                const elapsed = now - wave.startTime;
+                const progress = (elapsed % wave.duration) / wave.duration;
+                const waveX = wave.startX + progress * (canvas.width * 1.2);
+                const waveWidth = canvas.width * 0.05;
+
+                const gradient = ctx.createLinearGradient(waveX - waveWidth, 0, waveX + waveWidth, 0);
+                gradient.addColorStop(0, 'rgba(139, 92, 246, 0)');
+                gradient.addColorStop(0.5, 'rgba(139, 92, 246, 0.1)');
+                gradient.addColorStop(1, 'rgba(139, 92, 246, 0)');
+
+                ctx.fillStyle = gradient;
+                ctx.fillRect(waveX - waveWidth, 0, waveWidth * 2, canvas.height);
+
+                 // Brighten nodes as wave passes
+                 nodes.forEach(node => {
+                    const distFromWave = Math.abs(node.x - waveX);
+                    if (distFromWave < waveWidth) {
+                        const brightness = (1 - distFromWave / waveWidth) * 0.8;
+                        ctx.beginPath();
+                        ctx.arc(node.x, node.y, node.radius + 2, 0, Math.PI * 2);
+                        ctx.fillStyle = `rgba(191, 219, 254, ${brightness})`;
+                        ctx.fill();
+                    }
+                });
+            }
+
             // Draw connections
             connections.forEach(connection => {
                 const dist = Math.hypot(connection.from.x - connection.to.x, connection.from.y - connection.to.y);
@@ -90,11 +137,18 @@ const NodeNetwork = () => {
                     const elapsed = now - connection.pulseStartTime;
                     if (elapsed < pulseDuration) {
                         const pulseProgress = elapsed / pulseDuration;
-                        const gradient = ctx.createLinearGradient(connection.from.x, connection.from.y, connection.to.x, connection.to.y);
                         
-                        const startColor = `rgba(139, 92, 246, ${Math.max(0, 0.8 - pulseProgress)})`;
-                        const midColor = `rgba(255, 255, 255, ${Math.max(0, 1 - Math.abs(pulseProgress - 0.5) * 2)})`;
-                        const endColor = `rgba(139, 92, 246, ${Math.max(0, pulseProgress - 0.2)})`;
+                        let startColor = `rgba(139, 92, 246, ${Math.max(0, 0.8 - pulseProgress)})`;
+                        let midColor = `rgba(255, 255, 255, ${Math.max(0, 1 - Math.abs(pulseProgress - 0.5) * 2)})`;
+                        let endColor = `rgba(139, 92, 246, ${Math.max(0, pulseProgress - 0.2)})`;
+
+                        if (isCritical && Math.random() < 0.1) { // 10% chance to flash red if critical
+                            startColor = `rgba(220, 38, 38, ${Math.max(0, 0.8 - pulseProgress)})`;
+                            midColor = `rgba(255, 150, 150, ${Math.max(0, 1 - Math.abs(pulseProgress - 0.5) * 2)})`;
+                            endColor = `rgba(220, 38, 38, ${Math.max(0, pulseProgress - 0.2)})`;
+                        }
+
+                        const gradient = ctx.createLinearGradient(connection.from.x, connection.from.y, connection.to.x, connection.to.y);
 
                         gradient.addColorStop(Math.max(0, pulseProgress - 0.1), startColor);
                         gradient.addColorStop(pulseProgress, midColor);
@@ -194,7 +248,7 @@ const NodeNetwork = () => {
             cancelAnimationFrame(animationFrameId);
             window.removeEventListener('resize', init);
         };
-    }, []);
+    }, [isCritical]);
 
     return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full opacity-70" />;
 };

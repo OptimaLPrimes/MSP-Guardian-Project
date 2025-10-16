@@ -12,6 +12,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { RecentSecurityAlerts } from './components/recent-security-alerts';
 import SystemHealthChart from './components/system-health-chart';
+import { cn } from '@/lib/utils';
 
 export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
@@ -39,7 +40,7 @@ export default function DashboardPage() {
   return (
     <div className="flex-1 space-y-6">
       <div className="grid gap-6 md:grid-cols-4">
-        <Card className="col-span-1 flex flex-col items-center justify-center bg-card/50">
+        <Card className="col-span-1 flex flex-col items-center justify-center bg-card/50 animate-fade-in-up">
           <CardHeader className="items-center pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
               Overall Security Score
@@ -76,17 +77,20 @@ export default function DashboardPage() {
             value={activeThreats}
             icon={AlertTriangle}
             variant={activeThreats > 0 ? 'destructive' : 'default'}
+            className="[animation-delay:50ms]"
           />
           <StatCard
             title="Unpatched Systems"
             value={14}
             icon={Package}
             variant="warning"
+            className="[animation-delay:100ms]"
           />
           <StatCard
             title="Pending Security Updates"
             value={3}
             icon={ShieldCheck}
+            className="[animation-delay:150ms]"
           />
         </div>
       </div>

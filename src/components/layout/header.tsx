@@ -12,32 +12,33 @@ import {
 
 export default function Header() {
   return (
-    <header className="sticky top-0 flex h-16 items-center gap-4 border-b bg-background/80 px-4 backdrop-blur-sm md:px-6 z-50">
-      <Link
-        href="/dashboard"
-        className="flex items-center gap-2 text-lg font-semibold md:text-base"
-      >
-        <Shield className="h-6 w-6 text-primary" />
-        <span className="sr-only">MSP Guardian</span>
-      </Link>
-      <div className="hidden md:flex md:items-center md:gap-5 lg:gap-6">
-        <h1 className="text-lg font-semibold">MSP Guardian</h1>
+    <header className="sticky top-0 flex h-16 items-center gap-4 border-b border-border/40 bg-background/80 px-4 backdrop-blur-sm md:px-6 z-50">
+      <div className="flex items-center gap-2">
+        <Link
+          href="/dashboard"
+          className="flex items-center gap-2 text-lg font-semibold md:text-base"
+        >
+          <Shield className="h-6 w-6 text-primary" />
+          <span className="hidden sm:inline-block font-bold">MSP Guardian</span>
+        </Link>
+      </div>
+      <div className="hidden md:flex md:items-center md:gap-5 lg:gap-6 ml-6">
         <NavLinks />
       </div>
       
       <div className="flex w-full items-center gap-4 md:ml-auto md:w-auto">
         <div className="ml-auto flex-1 sm:flex-initial">
            <div className="flex items-center gap-2 text-sm">
-            <span className="relative flex h-3 w-3">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-success"></span>
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
             </span>
-            <span className="hidden sm:inline text-muted-foreground">System Status: </span><span className="hidden sm:inline font-semibold text-success-foreground bg-success/80 px-2 py-1 rounded-md">Operational</span>
+            <span className="hidden sm:inline text-muted-foreground">System Status:</span><span className="hidden sm:inline font-semibold text-green-400">All Systems Operational</span>
           </div>
         </div>
         <Button variant="ghost" size="icon" className="relative rounded-full">
           <Bell className="h-5 w-5" />
-          <Badge className="absolute top-1 right-1 flex h-4 w-4 shrink-0 items-center justify-center rounded-full p-0 text-xs" variant="destructive">
+          <Badge className="absolute -top-0.5 -right-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full p-0 text-xs" variant="destructive">
             3
           </Badge>
           <span className="sr-only">Toggle notifications</span>

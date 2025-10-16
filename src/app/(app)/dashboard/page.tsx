@@ -1,75 +1,107 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { Users, AlertTriangle, CheckCircle, FileText, TrendingUp, Eye } from 'lucide-react';
+import {
+  AlertTriangle,
+  ShieldCheck,
+  Package,
+} from 'lucide-react';
 import StatCard from './components/stat-card';
-import ThreatFeed from './components/threat-feed';
-import AiInsightsPanel from './components/ai-insights-panel';
-import ClientRiskOverview from './components/client-risk-overview';
-import { THREATS, CLIENTS, AI_INSIGHTS } from '@/lib/mock-data';
-import type { Threat, Client, AiInsight } from '@/lib/types';
+import { THREATS, CLIENTS } from '@/lib/mock-data';
+import type { Threat, Client } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { RecentSecurityAlerts } from './components/recent-security-alerts';
+import SystemHealthChart from './components/system-health-chart';
 
 export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [threats, setThreats] = useState<Threat[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
-  const [insights, setInsights] = useState<AiInsight[]>([]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      setThreats(THREATS.slice(0, 5));
+      setThreats(THREATS);
       setClients(CLIENTS);
-      setInsights(AI_INSIGHTS);
       setLoading(false);
     }, 1500);
 
     return () => clearTimeout(timer);
   }, []);
 
-  useEffect(() => {
-    if (loading) return;
-
-    const interval = setInterval(() => {
-      // Simulate real-time updates
-      setThreats(prevThreats => {
-        const newThreats = [...prevThreats];
-        const randomIndex = Math.floor(Math.random() * newThreats.length);
-        //- Modify a random threat's time
-        if (newThreats[randomIndex]) {
-          newThreats[randomIndex] = { ...newThreats[randomIndex], time: `${Math.floor(Math.random() * 59) + 1} min ago` };
-        }
-        return newThreats;
-      });
-    }, 10000);
-
-    return () => clearInterval(interval);
-  }, [loading]);
-
   if (loading) {
     return <DashboardSkeleton />;
   }
 
-  const atRiskClients = clients.filter(c => c.status === 'at-risk' || c.status === 'critical').length;
+  const activeThreats = threats.filter(
+    (t) => t.status === 'active' || t.status === 'isolating'
+  ).length;
 
   return (
-    <div className="flex-1 space-y-4">
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
-        <StatCard title="Total Clients" value={clients.length} icon={Users} />
-        <StatCard title="Active Threats" value={threats.length} icon={AlertTriangle} isPulsing />
-        <StatCard title="Resolved Today" value={28} icon={CheckCircle} />
-        <StatCard title="Compliance Score" value="94%" icon={FileText} />
-        <StatCard title="At-Risk Clients" value={atRiskClients} icon={TrendingUp} />
-      </div>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <div className="lg:col-span-5">
-          <ThreatFeed threats={threats} />
+    <div className="flex-1 space-y-6">
+      <div className="grid gap-6 md:grid-cols-4">
+        <Card className="col-span-1 flex flex-col items-center justify-center bg-card/50">
+          <CardHeader className="items-center pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Overall Security Score
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="flex items-center justify-center">
+            <div className="relative flex h-32 w-32 items-center justify-center">
+              <svg className="h-full w-full" viewBox="0 0 36 36">
+                <path
+                  className="stroke-muted"
+                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                  fill="none"
+                  strokeWidth="3"
+                />
+                <path
+                  className="stroke-primary"
+                  strokeDasharray="94, 100"
+                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                  fill="none"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                  transform="rotate(90 18 18)"
+                />
+              </svg>
+              <span className="absolute text-4xl font-bold text-primary">
+                94
+              </span>
+            </div>
+          </CardContent>
+        </Card>
+        <div className="col-span-3 grid grid-cols-3 gap-6">
+          <StatCard
+            title="Active Threats"
+            value={activeThreats}
+            icon={AlertTriangle}
+            variant={activeThreats > 0 ? 'destructive' : 'default'}
+          />
+          <StatCard
+            title="Unpatched Systems"
+            value={14}
+            icon={Package}
+            variant="warning"
+          />
+          <StatCard
+            title="Pending Security Updates"
+            value={3}
+            icon={ShieldCheck}
+          />
         </div>
-        <div className="lg:col-span-2">
-          <AiInsightsPanel insights={insights} />
-        </div>
       </div>
-      <div>
-        <ClientRiskOverview clients={clients.slice(0, 5)} />
+      <div className="grid gap-6 md:grid-cols-3">
+        <Card className="col-span-3 md:col-span-2">
+          <CardHeader>
+            <CardTitle>Recent Security Alerts</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <RecentSecurityAlerts data={threats.slice(0, 5)} />
+          </CardContent>
+        </Card>
+        <div className="col-span-3 md:col-span-1">
+          <SystemHealthChart />
+        </div>
       </div>
     </div>
   );
@@ -77,22 +109,18 @@ export default function DashboardPage() {
 
 function DashboardSkeleton() {
   return (
-    <div className="flex-1 space-y-4">
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
-        {[...Array(5)].map((_, i) => (
-          <Skeleton key={i} className="h-[126px]" />
-        ))}
-      </div>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <div className="lg:col-span-5">
-          <Skeleton className="h-[400px]" />
-        </div>
-        <div className="lg:col-span-2">
-          <Skeleton className="h-[400px]" />
+    <div className="flex-1 space-y-6">
+      <div className="grid gap-6 md:grid-cols-4">
+        <Skeleton className="col-span-1 h-[218px]" />
+        <div className="col-span-3 grid grid-cols-3 gap-6">
+          <Skeleton className="h-[100px]" />
+          <Skeleton className="h-[100px]" />
+          <Skeleton className="h-[100px]" />
         </div>
       </div>
-      <div>
-        <Skeleton className="h-[200px]" />
+      <div className="grid grid-cols-3 gap-6">
+        <Skeleton className="col-span-2 h-[400px]" />
+        <Skeleton className="col-span-1 h-[400px]" />
       </div>
     </div>
   );
